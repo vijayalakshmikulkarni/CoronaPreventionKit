@@ -23,7 +23,8 @@ import com.wellsfargo.fsd.cpk.service.ProductServiceImpl;
 /**
  * Servlet implementation class UserController
  */
-@WebServlet({ "/newuser","/insertuser","/showproducts","/newitemkit","/additemkit","/deleteitemkit","/showkit","/placeorder","/saveorder","/ordersummary" })
+@WebServlet({ "/newuser", "/insertuser", "/showproducts", "/newitemkit", "/additemkit", "/deleteitemkit", "/showkit",
+		"/placeorder", "/saveorder", "/ordersummary" })
 public class UserController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -36,20 +37,20 @@ public class UserController extends HttpServlet {
 	@Override
 	public void init() throws ServletException {
 		productService = new ProductServiceImpl();
-		kitDao= new KitDetailDao();
-		ck= new CoronaKit();
+		kitDao = new KitDetailDao();
+		ck = new CoronaKit();
 		orderSummary = new OrderSummary();
-		
-	}	
+
+	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
 		String url = request.getServletPath();
-		String viewName="";
-		
-		switch(url) {
-		
+		String viewName = "";
+
+		switch (url) {
+
 		case "/newuser":
 			viewName = showNewUserForm(request, response);
 			break;
@@ -58,10 +59,14 @@ public class UserController extends HttpServlet {
 			break;
 		case "/showproducts":
 			viewName = showAllProducts(request, response);
-			break;	
-		case "/newitemkit":viewName=doNewItemToKit(request, response);break;
-		case "/additemkit":viewName=addNewItemToKit(request, response); break;
-		
+			break;
+		case "/newitemkit":
+			viewName = doNewItemToKit(request, response);
+			break;
+		case "/additemkit":
+			viewName = addNewItemToKit(request, response);
+			break;
+
 		case "/deleteitemkit":
 			viewName = deleteItemFromKit(request, response);
 			break;
@@ -73,14 +78,16 @@ public class UserController extends HttpServlet {
 			break;
 		case "/saveorder":
 			viewName = saveOrderForDelivery(request, response);
-			break;	
+			break;
 		case "/ordersummary":
 			viewName = showOrderSummary(request, response);
-			break;	
-		default : viewName = "notfound.jsp"; break;	
-		
+			break;
+		default:
+			viewName = "notfound.jsp";
+			break;
+
 		}
-		
+
 		request.getRequestDispatcher(viewName).forward(request, response);
 	}
 
@@ -88,211 +95,201 @@ public class UserController extends HttpServlet {
 			throws ServletException, IOException {
 		doGet(request, response);
 	}
-	
+
 	private String showNewUserForm(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-			
-		return "newuser.jsp";		
-		
+
+		return "newuser.jsp";
+
 	}
-	
+
 	private String insertNewUser(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		
-		String view="";
-				
+
+		String view = "";
+
 		ck.setId(1);
 		ck.setPersonName(request.getParameter("pname"));
 		ck.setEmail(request.getParameter("email"));
 		ck.setContactNumber(request.getParameter("pcontact"));
-		
-		//below code will delete previously stored kitDetails order items for new user
+
+		// below code will delete previously stored kitDetails order items for new user
 		try {
 			kitDao.deleteAll();
-			
+
 		} catch (CpkException e) {
 			request.setAttribute("errMsg", e.getMessage());
-			view="errPage.jsp";
-		}	
-		
-		view="userprintMessage.jsp";
-		
-		request.setAttribute("msg","User details entered successfully");
+			view = "errPage.jsp";
+		}
+
+		view = "userprintMessage.jsp";
+
+		request.setAttribute("msg", "User details entered successfully");
 		return view;
 	}
 
 	private String showAllProducts(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		
-		String view="";
-		
+
+		String view = "";
+
 		try {
 			List<Product> items = productService.getAllItems();
 			request.setAttribute("items", items);
-			view="showproductstoadd.jsp";
+			view = "showproductstoadd.jsp";
 		} catch (CpkException e) {
 			request.setAttribute("errMsg", e.getMessage());
-			view="errPage.jsp";
+			view = "errPage.jsp";
 		}
-		
+
 		return view;
 	}
+
 	private String doNewItemToKit(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		
-				
+
 		return "additemkit.jsp";
 	}
-	
+
 	private String addNewItemToKit(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		
-		String view="";
+
+		String view = "";
 		KitDetail kit = new KitDetail();
-		
-		
-		int productId= Integer.parseInt(request.getParameter("productId"));
-		int quantity= Integer.parseInt(request.getParameter("quantity"));
-		
-		kitId+=1;
+
+		int productId = Integer.parseInt(request.getParameter("productId"));
+		int quantity = Integer.parseInt(request.getParameter("quantity"));
+
+		kitId += 1;
 		kit.setId(kitId);
 		kit.setCoronaKitId(1);
 		kit.setProductId(productId);
 		kit.setQuantity(quantity);
-		
-		Product p=null;
-		
+
+		Product p = null;
+
 		try {
 			p = productService.getItemById(productId);
 			request.setAttribute("msg", "Item Got added To Kit!");
 		} catch (CpkException e) {
 			request.setAttribute("errMsg", e.getMessage());
-			view="errPage.jsp";
+			view = "errPage.jsp";
 		}
-		
-		int cost=p.getCost();
-		int amount =cost*quantity;
-		
-		kit.setAmount(amount);	
+
+		int cost = p.getCost();
+		int amount = cost * quantity;
+
+		kit.setAmount(amount);
 		try {
 			kitDao.add(kit);
 		} catch (CpkException e) {
 			request.setAttribute("errMsg", e.getMessage());
-			view="errPage.jsp";
+			view = "errPage.jsp";
 		}
-		view="userprintMessage.jsp";
-				
+		view = "userprintMessage.jsp";
+
 		return view;
 	}
-	
+
 	private String deleteItemFromKit(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		
-		String view="";
+
+		String view = "";
 		int id = Integer.parseInt(request.getParameter("productId"));
-		
-				
+
 		try {
 			kitDao.deleteById(id);
 			request.setAttribute("msg", "Item Got Removed From The Kit!");
-			
-			view="userprintMessage.jsp";
+
+			view = "userprintMessage.jsp";
 		} catch (CpkException e) {
 			request.setAttribute("errMsg", e.getMessage());
-			view="errPage.jsp";
-		}		
-						
+			view = "errPage.jsp";
+		}
+
 		return view;
 	}
-	
+
 	private String showKitDetails(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		
-		
-String view="";
 
-		
+		String view = "";
+
 		try {
 			List<KitDetail> items = kitDao.getAll();
 			request.setAttribute("items", items);
-			view="showkit.jsp";
+			view = "showkit.jsp";
 		} catch (CpkException e) {
 			request.setAttribute("errMsg", e.getMessage());
-			view="errPage.jsp";
+			view = "errPage.jsp";
 		}
-					
-				
+
 		return view;
 	}
+
 	private String showPlaceOrderForm(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-				
-		String view="placeorder.jsp";
-		
-						
-				
+
+		String view = "placeorder.jsp";
+
 		return view;
 	}
-	
+
 	private String saveOrderForDelivery(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		
-		
-		String view="";
-		int totalAmount=0;
-		String address= request.getParameter("paddress");
+
+		String view = "";
+		int totalAmount = 0;
+		String address = request.getParameter("paddress");
 		ck.setDeliveryAddress(address);
-		
-		String order =request.getParameter("orderfinal");
-		boolean orderFinal=order.equals("yes")?true:false;
-		
+
+		String order = request.getParameter("orderfinal");
+		boolean orderFinal = order.equals("yes") ? true : false;
+
 		try {
 			totalAmount = kitDao.getSumAmount();
 		} catch (CpkException e) {
 			request.setAttribute("errMsg", e.getMessage());
-			view="errPage.jsp";
+			view = "errPage.jsp";
 		}
 		ck.setOrderFinalized(orderFinal);
 		ck.setOrderDate(LocalDate.now());
 		ck.setTotalAmount(totalAmount);
-		orderSummary.setCoronaKit(ck);
-		
-		
-						
+
 		if (!orderFinal) {
 			request.setAttribute("msg", "You cannot place the order without finalizing the order");
-			
-		}else 
+
+		} else {
 			request.setAttribute("msg", "order got placed successfully");
-		
-		view="userprintMessage.jsp";
-		
+			orderSummary.setCoronaKit(ck);
+		}
+
+		view = "userprintMessage.jsp";
+
 		return view;
 	}
-	
-	
+
 	private String showOrderSummary(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-				
-		String view="";
-		CoronaKit ck1= orderSummary.getCoronaKit();
-		
-		if (ck1!=null) {
-		request.setAttribute("msg", ck); 
-		try {
-			List<KitDetail> items = kitDao.getAll();
-			request.setAttribute("items", items);
-			view="ordersummary.jsp";
-		} catch (CpkException e) {
-			request.setAttribute("errMsg", e.getMessage());
-			view="errPage.jsp";
-		}	
+
+		String view = "";
+		CoronaKit ck1 = orderSummary.getCoronaKit();
+
+		if (ck1 != null) {
+			request.setAttribute("msg", ck);
+			try {
+				List<KitDetail> items = kitDao.getAll();
+				request.setAttribute("items", items);
+				view = "ordersummary.jsp";
+			} catch (CpkException e) {
+				request.setAttribute("errMsg", e.getMessage());
+				view = "errPage.jsp";
+			}
+		} else {
+			request.setAttribute("msg", "Please complete the place order and then order summary can be displayed");
+			view = "userprintMessage.jsp";
 		}
-		else {
-			request.setAttribute("msg","Please complete the place order and then order summary can be displayed");
-			view="userprintMessage.jsp";
-		}
-		
+
 		return view;
-	}	
-}	
+	}
+}
