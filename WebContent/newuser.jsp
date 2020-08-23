@@ -23,7 +23,7 @@
 				maxlength="70" required />
 		</div>
 		<div>
-			<label>Contact Number :</label> <input type="number" name="pcontact"
+			<label>Contact Number :</label> <input type="text" name="pcontact"
 				minlength="10" maxlength="10" required />
 		</div>
 
