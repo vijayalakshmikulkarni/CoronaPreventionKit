@@ -7,7 +7,7 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>Corona Kit-All Products(user)</title>
+<title>Corona Kit-User Details</title>
 </head>
 <body>
 	
