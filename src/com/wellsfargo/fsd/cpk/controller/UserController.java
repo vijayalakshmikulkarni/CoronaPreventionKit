@@ -116,15 +116,14 @@ public class UserController extends HttpServlet {
 		// below code will delete previously stored kitDetails order items for new user
 		try {
 			kitDao.deleteAll();
+			view = "userprintMessage.jsp";
+			request.setAttribute("msg", "User details entered successfully");
 
 		} catch (CpkException e) {
 			request.setAttribute("errMsg", e.getMessage());
 			view = "errPage.jsp";
 		}
 
-		view = "userprintMessage.jsp";
-
-		request.setAttribute("msg", "User details entered successfully");
 		return view;
 	}
 
@@ -171,6 +170,7 @@ public class UserController extends HttpServlet {
 		try {
 			p = productService.getItemById(productId);
 			request.setAttribute("msg", "Item Got added To Kit!");
+
 		} catch (CpkException e) {
 			request.setAttribute("errMsg", e.getMessage());
 			view = "errPage.jsp";
@@ -182,11 +182,11 @@ public class UserController extends HttpServlet {
 		kit.setAmount(amount);
 		try {
 			kitDao.add(kit);
+			view = "userprintMessage.jsp";
 		} catch (CpkException e) {
 			request.setAttribute("errMsg", e.getMessage());
 			view = "errPage.jsp";
 		}
-		view = "userprintMessage.jsp";
 
 		return view;
 	}
@@ -200,7 +200,6 @@ public class UserController extends HttpServlet {
 		try {
 			kitDao.deleteById(id);
 			request.setAttribute("msg", "Item Got Removed From The Kit!");
-
 			view = "userprintMessage.jsp";
 		} catch (CpkException e) {
 			request.setAttribute("errMsg", e.getMessage());
@@ -248,6 +247,7 @@ public class UserController extends HttpServlet {
 
 		try {
 			totalAmount = kitDao.getSumAmount();
+			view = "userprintMessage.jsp";
 		} catch (CpkException e) {
 			request.setAttribute("errMsg", e.getMessage());
 			view = "errPage.jsp";
@@ -263,8 +263,6 @@ public class UserController extends HttpServlet {
 			request.setAttribute("msg", "order got placed successfully");
 			orderSummary.setCoronaKit(ck);
 		}
-
-		view = "userprintMessage.jsp";
 
 		return view;
 	}
